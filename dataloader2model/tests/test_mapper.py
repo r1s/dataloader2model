@@ -1,9 +1,11 @@
 import os
+import sys
 from types import ModuleType
 import unittest
 from mapper.data_mapper import BaseVisit, Storage
 from mapper.schema_loader import Schema
 
+PY2 = sys.version_info[0] == 2
 
 class TestSchema(unittest.TestCase):
 
@@ -21,9 +23,12 @@ class TestSchema(unittest.TestCase):
         full_path = os.path.join(module_path, 'blablabla')
         with open(full_path, 'wt') as f:
             f.write('bla' * 10)
-
         s = Schema(full_path)
-        self.assertRaises(ImportError, s.load)
+
+        if PY2:
+            self.assertRaises(ImportError, s.load)
+        else:
+            self.assertFalse(hasattr(s.load(), 'SCHEMA'))
         os.remove(full_path)
 
 

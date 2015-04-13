@@ -57,7 +57,7 @@ class MethodBinder(BaseVisit):
         return model._meta.get_field(field_name)
 
     def is_model(self, value):
-        return isinstance(value, basestring)
+        return isinstance(value, str)
 
     def is_function(self, value):
         return callable(value)
