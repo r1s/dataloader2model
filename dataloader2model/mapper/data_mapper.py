@@ -156,9 +156,12 @@ class Storage(object):
 
 
 class SchemaVisit(BaseVisit):
+
+    storage_class = Storage
+
     def __init__(self, tree):
         super(SchemaVisit, self).__init__(tree)
-        self.storage = Storage()
+        self.storage = self.storage_class()
         MethodBinder(tree).bind_methods(self)
 
     def _construct_model(self, tree, path=''):
