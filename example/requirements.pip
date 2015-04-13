@@ -1,0 +1,3 @@
+python-dateutil
+git+https://github.com/r1s/dataloader2model.git
+django_extensions

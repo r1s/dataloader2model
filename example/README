@@ -1,0 +1,3 @@
+pip install -r requirements.pip
+python manage.py migrate
+python manage.py load_ext_data
