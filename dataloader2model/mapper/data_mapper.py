@@ -5,6 +5,7 @@ from functools import partial
 import inspect
 from itertools import chain
 from django.db.models.loading import get_model
+from django.db.transaction import atomic
 
 
 class BaseVisit(object):
@@ -146,13 +147,21 @@ class Storage(object):
     def collections(self):
         return dict(self.__collections)
 
-    def save(self, save_order=None):
+    def get_transaction_context(self):
+        return atomic()
+
+    def save(self, clear=True, save_order=None):
         save_order = chain(self.objects.keys(), self.collections.keys()) if save_order is None else save_order[:]
 
-        for model in save_order:
-            objs = list(filter(None, [self.objects.get(model)])) or self.collections.get(model)
-            for obj in objs:
-                obj.save()
+        with self.get_transaction_context():
+            for model in save_order:
+                objs = list(filter(None, [self.objects.get(model)])) or self.collections.get(model)
+                for obj in objs:
+                    obj.save()
+
+        if clear:
+            self.__collections = defaultdict(list)
+            self.__objects = {}
 
 
 class SchemaVisit(BaseVisit):
@@ -199,4 +208,5 @@ class SchemaVisit(BaseVisit):
             attr(value)
 
     def construct_model(self, data):
+        self.storage = self.storage_class()
         self._construct_model(data)
